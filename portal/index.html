@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Back Office — Upay</title>
+    <link rel="stylesheet" href="portal.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+
+<!-- Login Page -->
+    <div id="loginPage">
+        <div class="login-wrapper">
+            <div class="login-left">
+                <div class="login-logo">
+                    <img src="/images/upay_logo.png" alt="Upay">
+                </div>
+                <div class="login-wave"></div>
+            </div>
+            <div class="login-right">
+                <h2>Welcome Back!</h2>
+                <p class="login-sub">Sign in to continue to Channel<br><strong>Merchant Back Office</strong></p>
+                <div class="form-group">
+                    <input type="text" id="loginUsername" placeholder="Username" class="login-input">
+                </div>
+                <div class="form-group password-group">
+                    <input type="password" id="loginPassword" placeholder="Password" class="login-input">
+
+                    <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Show password">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.5 12C4.2 8.5 7.6 6 12 6C16.4 6 19.8 8.5 21.5 12C19.8 15.5 16.4 18 12 18C7.6 18 4.2 15.5 2.5 12Z"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="2.5"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="alert-danger" id="loginError" style="display:none;">Invalid credentials</div>
+                <button class="login-btn" onclick="doLogin()">Log In</button>
+                <div class="login-footer">
+                    <span>16268</span> | <span>www.upaybd.com</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- ===== DASHBOARD PAGE ===== -->
+<div id="dashboardPage" style="display:none;">
+
+    <!-- Top Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="sidebar-brand-top">MERCHANT BACK OFFICE</div>
+            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+        </div>
+        <div class="header-right">
+            <span class="header-info">Name : <strong id="headerName">Demo User</strong></span>
+            <span class="header-info">Designation : <strong>Maker 1</strong></span>
+            <span class="header-info">Role : <strong>Back Office Maker 1</strong></span>
+            <div class="header-bell">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="bell-badge">0</span>
+            </div>
+            <div class="header-avatar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item" onclick="showPage('dashboard')">
+                    <span class="nav-icon material-icons">home</span>
+                    <span class="nav-label">Dashboard</span>
+                </li>
+                <li class="nav-item has-sub" onclick="toggleNav(this)">
+                    <span class="nav-icon material-icons">receipt_long</span>
+                    <span class="nav-label">Transaction History</span>
+                    <span class="nav-arrow">‹</span>
+                    <ul class="nav-submenu">
+                        <li onclick="showTransactionHistory('Transaction',event)">Transaction List</li>
+                    </ul>
+                </li>
+                <li class="nav-item has-sub" onclick="toggleNav(this)">
+                    <span class="nav-icon material-icons">store</span>
+                    <span class="nav-label">Parent Merchant</span>
+                    <span class="nav-arrow">‹</span>
+                    <ul class="nav-submenu">
+                        <li onclick="showMerchantList('Parent', event)">Parent.M Active List</li>
+                        <li onclick="showOtherPage('Parent', 'Pending', 'Parent Merchant Pending List', 'Parent Merchant › Pending List', event)">Parent.M Pending List</li>
+                        <li onclick="showOtherPage('Parent', 'Rejected', 'Parent Merchant Rejected List', 'Parent Merchant › Rejected List', event)">Parent.M Rejected List</li>
+                    </ul>
+                </li>
+                <li class="nav-item has-sub" onclick="toggleNav(this)">
+                    <span class="nav-icon material-icons">person</span>
+                    <span class="nav-label">Child Merchant</span>
+                    <span class="nav-arrow">‹</span>
+                    <ul class="nav-submenu">
+                        <li onclick="showMerchantList('Child', event)">Child.M Active List</li>
+                        <li onclick="showOtherPage('Child', 'Pending', 'Child Merchant Pending List', 'Child Merchant › Pending List', event)">Child.M Pending List</li>
+                        <li onclick="showOtherPage('Child', 'Rejected', 'Child Merchant Rejected List', 'Child Merchant › Rejected List', event)">Child.M Rejected List</li>
+                    </ul>
+                </li>
+                <li class="nav-item has-sub" onclick="toggleNav(this)">
+                    <span class="nav-icon material-icons">storefront</span>
+                    <span class="nav-label">Micro Merchant</span>
+                    <span class="nav-arrow">‹</span>
+                    <ul class="nav-submenu">
+                        <li onclick="showMerchantList('PRA', event)">Approved List</li>
+                        <li onclick="showOtherPage('PRA', 'Pending', 'Micro Merchant Pending List', 'Micro Merchant › Pending List', event)">Pending List</li>
+                        <li onclick="showOtherPage('PRA', 'Rejected', 'Micro Merchant Rejected List', 'Micro Merchant › Rejected List', event)">Rejected List</li>
+                    </ul>
+                </li>
+                <li class="nav-item" onclick="showQRLogs(event)">
+                    <span class="nav-icon material-icons">download</span>
+                    <span class="nav-label">QR Download Logs</span>
+                </li>
+            </ul>
+            <div class="nav-item" class="sidebar-bottom-btn">
+                <button class="automation-round-btn" onclick="window.open('http://localhost:5000', '_blank')">
+                    Automation Dashboard
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main" id="mainContent">
+
+            <!-- Dashboard -->
+            <div id="pageDashboard">
+                <div class="dash-filter">
+                    <select class="dash-select" id="dashMonth" onchange="updateDashboard()">
+                        <option value="">Select Month</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select class="dash-select" id="dashYear" onchange="updateDashboard()">
+                        <option value="">Select Year</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                    <button class="dash-search-btn" onclick="updateDashboard()">SEARCH</button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dash-card blue-card">
+                        <div class="dash-card-title">TOTAL MERCHANT</div>
+                        <div class="dash-card-body">
+                            <div class="dash-stat">
+                                <div class="dash-num">50</div>
+                                <div class="dash-lbl">Parent Merchant</div>
+                            </div>
+                            <div class="dash-stat">
+                                <div class="dash-num">400</div>
+                                <div class="dash-lbl">Child Merchant</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-card pink-card">
+                        <div class="dash-card-title">MERCHANT STATUS</div>
+                        <div class="dash-card-body">
+                            <div class="dash-stat">
+                                <div class="dash-num green-num">370</div>
+                                <div class="dash-lbl">Active Merchant</div>
+                            </div>
+                            <div class="dash-stat">
+                                <div class="dash-num">130</div>
+                                <div class="dash-lbl">Inactive Merchant</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-card purple-card">
+                        <div class="dash-card-title">TOTAL SALES</div>
+                        <div class="dash-card-body">
+                            <div class="dash-stat">
+                                <div class="dash-num">৳ 8,45,320</div>
+                                <div class="dash-lbl">Amount</div>
+                            </div>
+                            <div class="dash-stat">
+                                <div class="dash-num">1,243</div>
+                                <div class="dash-lbl">Count</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-card green-card">
+                        <div class="dash-card-title">TOTAL VOID</div>
+                        <div class="dash-card-body">
+                            <div class="dash-stat">
+                                <div class="dash-num">৳ 94,500</div>
+                                <div class="dash-lbl">Amount</div>
+                            </div>
+                            <div class="dash-stat">
+                                <div class="dash-num">75</div>
+                                <div class="dash-lbl">Count</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-card yellow-card">
+                        <div class="dash-card-title">TOTAL REFUND</div>
+                        <div class="dash-card-body">
+                            <div class="dash-stat">
+                                <div class="dash-num">৳ 12,750</div>
+                                <div class="dash-lbl">Amount</div>
+                            </div>
+                            <div class="dash-stat">
+                                <div class="dash-num">32</div>
+                                <div class="dash-lbl">Count</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dash-card salmon-card">
+                        <div class="dash-card-title">TOP MERCHANT</div>
+                        <div class="dash-card-body">
+                            <div class="dash-stat">
+                                <div class="dash-num">৳ 2,45,000</div>
+                                <div class="dash-num green-num" style="font-size:16px;">BEST ELECTRONICS</div>
+                            </div>
+                            <div class="dash-stat">
+                                <div class="dash-num">৳ 1,98,500</div>
+                                <div class="dash-num green-num" style="font-size:16px;">MEENA BAZAR</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Merchant List Page (Active) -->
+            <div id="pageMerchantList" style="display:none;">
+                <div class="content-header">
+                    <div>
+                        <h2 class="content-title" id="listTitle">Child Merchant List</h2>
+                        <div class="breadcrumb">
+                            <span id="breadcrumb1">Child Merchant</span>
+                            <span> › </span>
+                            <span id="breadcrumb2">Child Merchant List</span>
+                        </div>
+                    </div>
+                    <button class="btn-create" id="createBtn">ChildMerchant Create</button>
+                </div>
+                <div class="list-banner" id="listBanner">CHILD MERCHANT LIST</div>
+                <div class="filter-card">
+                    <div class="filter-row">
+                        <div class="filter-field">
+                            <label>Wallet Number</label>
+                            <input type="text" id="walletSearch" placeholder="Wallet Number" class="filter-input">
+                        </div>
+                        <div class="filter-field">
+                            <label>DBA</label>
+                            <input type="text" id="dbaSearch" placeholder="DBA" class="filter-input">
+                        </div>
+                        <div class="filter-field">
+                            <label>KAM</label>
+                            <input type="text" id="kamSearch" placeholder="KAM" class="filter-input">
+                        </div>
+                        <div class="filter-field">
+                            <label>Status</label>
+                            <select id="statusSearch" class="filter-select">
+                                <option value="">Select Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="filter-field">
+                            <label>Persona Type</label>
+                            <select id="personaSearch" class="filter-select">
+                                <option value="">Select Persona</option>
+                                <option value="regular">Regular</option>
+                                <option value="corporate">Corporate</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn-apply" onclick="searchMerchants()">Apply</button>
+                            <button class="btn-reset" onclick="resetSearch()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="icon-row">
+                    <button class="btn-icon-green" onclick="searchMerchants()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    </button>
+                </div>
+                <div class="action-row">
+                    <button class="btn-download-qr" onclick="openDownloadModal()">Download QR-Code</button>
+                    <button class="btn-generate-qr" onclick="openGenerateModal()">Generate QR-Code</button>
+                    <span class="selected-count" id="selectedCount">0 selected (max 30)</span>
+                </div>
+                <div class="table-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" class="table-checkbox"></th>
+                                <th>Merchant Name</th>
+                                <th>Merchant DBA</th>
+                                <th>Wallet Number</th>
+                                <th>Merchant ID</th>
+                                <th>Credit Advice Email ID</th>
+                                <th>Merchant Type</th>
+                                <th>Persona Type</th>
+                                <th>Type of Business</th>
+                                <th>Assign KAM</th>
+                                <th>Actions</th>
+                                <th>Block/Unblock</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="8" class="table-empty">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="table-pagination">
+                        <span>Rows per page: 30</span>
+                        <span id="pageInfo">0-0 of 0</span>
+                        <div class="pagination-btns" id="mainPag"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Pages -->
+            <div id="pageOther" style="display:none;">
+                <div class="content-header">
+                    <div>
+                        <h2 class="content-title" id="otherTitle">Page</h2>
+                        <div class="breadcrumb" id="otherBreadcrumb"></div>
+                    </div>
+                </div>
+                <div class="filter-card" id="otherFilterCard" style="display:none;">
+                    <div class="filter-row">
+                        <div class="filter-field">
+                            <label>Wallet Number</label>
+                            <input type="text" id="otherWalletSearch" placeholder="Wallet Number" class="filter-input">
+                        </div>
+                        <div class="filter-field">
+                            <label>DBA</label>
+                            <input type="text" placeholder="DBA" class="filter-input">
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn-apply" onclick="searchOtherPage()">Apply</button>
+                            <button class="btn-reset" onclick="resetOtherPage()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-card" id="otherTableCard" style="display:none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Merchant Name / DBA</th>
+                                <th>Wallet Number</th>
+                                <th>Merchant ID</th>
+                                <th>KAM</th>
+                                <th>Division</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="otherTableBody">
+                            <tr><td colspan="7" class="table-empty">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="table-pagination">
+                        <span id="otherPageInfo">0-0 of 0</span>
+                        <div class="pagination-btns" id="otherPag">                          
+                        </div>
+                    </div>
+                </div>
+                <div id="transactionSection" style="display:none;">
+                    <div class="table-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Merchant</th>
+                                    <th>Wallet</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- QR Download Logs -->
+                <div id="qrLogSection" style="display:none;">
+                    <div class="table-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Log ID</th>
+                                    <th>Merchant DBA</th>
+                                    <th>Wallet Number</th>
+                                    <th>QR Type</th>
+                                    <th>Downloaded By</th>
+                                    <th>Batch Size</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="qrLogBody"></tbody>
+                        </table>
+                        <div class="table-pagination">
+                            <span>Rows per page: 30</span>
+                            <span id="qrLogInfo">0-0 of 0</span>
+                            <div class="pagination-btns" id="qrLogPag"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- DOWNLOAD MODAL -->
+<div class="modal-bg" id="downloadModal" style="display:none;">
+    <div class="modal-box">
+        <div class="modal-head">
+            <span>QR Code Download</span>
+            <button onclick="closeDownloadModal()" class="modal-x">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field">
+                <label>QR Code Type</label>
+                <div class="modal-select-wrap">
+                    <select id="qrType" class="modal-select">
+                        <option value="">Select...</option>
+                        <option value="bangla_qr">Bangla QR</option>
+                        <option value="regular_qr">Regular QR</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-field">
+                <label>Size</label>
+                <div class="modal-select-wrap">
+                    <select id="qrSize" class="modal-select">
+                        <option value="">Select...</option>
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+            </div>
+            <div id="dlStatus" style="display:none; text-align:center; padding:15px;">
+                <div class="spin"></div>
+                <p style="margin-top:10px; color:#888; font-size:13px;">Downloading QR codes...</p>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn-submit" onclick="downloadQR()">Submit</button>
+        </div>
+    </div>
+</div>
+
+<!-- GENERATE MODAL -->
+<div class="modal-bg" id="generateModal" style="display:none;">
+    <div class="modal-box">
+        <div class="modal-head">
+            <span>Generate QR Code</span>
+            <button onclick="closeGenerateModal()" class="modal-x">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field">
+                <label>QR Code Type</label>
+                <div class="modal-select-wrap">
+                    <select id="generateQrType" class="modal-select">
+                        <option value="bangla_qr">Bangla QR</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn-submit" onclick="submitGenerate()">Generate</button>
+        </div>
+    </div>
+</div>
+
+<script src="portal.js"></script>
+</body>
+</html>

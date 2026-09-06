@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results — Upay QR Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="navbar-logo-wrap">
+                <img src="/images/upay_logo.png" alt="Upay" style="height:50px; display:block;">
+            </div>
+            <div class="navbar-title">QR Code Automation Dashboard</div>
+        </div>
+        <div class="navbar-right">Sales & Operations Division</div>
+    </nav>
+
+    <div class="main-content">
+
+        <div class="hero">
+            <div class="hero-text">
+                <h1 id="jobTitle">Automation Complete!</h1>
+                <p id="jobSubtitle">Your QR codes have been downloaded successfully</p>
+            </div>
+            <div class="hero-badge">Done</div>
+        </div>
+
+        <div class="card" style="text-align:center;">
+            <div class="success-icon" aria-label="Complete">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>
+            </div>
+            <div class="card-title" style="text-align:center; font-size:24px;" id="excelName">Results</div>
+            <p class="card-subtitle" style="text-align:center;">Processing complete — here is your summary</p>
+
+            <div class="stats-row">
+                <div class="stat-box downloaded">
+                    <div class="stat-number" id="downloadedCount">—</div>
+                    <div class="stat-label">Downloaded</div>
+                </div>
+                <div class="stat-box missing">
+                    <div class="stat-number" id="missingCount">—</div>
+                    <div class="stat-label">Missing</div>
+                </div>
+                <div class="stat-box total">
+                    <div class="stat-number" id="totalCount">—</div>
+                    <div class="stat-label">Total</div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
+                <a id="downloadBtn" href="#" class="btn btn-yellow">
+                    <svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                    Download ZIP
+                </a>
+                <a href="/" class="btn btn-primary">
+                    <svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>
+                    Run Another File
+                </a>
+            </div>
+
+            <p style="font-size:12px; color:#888; margin-top:20px;">
+                ZIP contains: labeled PDFs, agent lists, QR_Report.xlsx, failed_agents.xlsx (if any)
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">What's in your ZIP?</div>
+            <div class="card-subtitle">Everything you need is organized inside</div>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>File/Folder</th>
+                        <th>Contents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>labeled_qr_codes/</td>
+                        <td>All labeled PDF files + agent txt lists</td>
+                    </tr>
+                    <tr>
+                        <td>QR_Report.xlsx</td>
+                        <td>Sheet 1: Downloaded | Sheet 2: Missing</td>
+                    </tr>
+                    <tr>
+                        <td>failed_agents.xlsx</td>
+                        <td>Agents whose batch download failed (if any)</td>
+                    </tr>
+                    <tr>
+                        <td>MISSING.txt</td>
+                        <td>Wallet numbers missing from each PDF batch</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        একটি UCB প্রতিষ্ঠান &nbsp;|&nbsp; 16268 &nbsp;|&nbsp; www.upaybd.com
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId     = urlParams.get('job_id');
+
+        if (!jobId) {
+            window.location.href = '/';
+        }
+
+        fetch(`/api/status/${jobId}`)
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('excelName').textContent       = data.excel_name || 'Results';
+                document.getElementById('jobTitle').textContent        = data.excel_name || 'Complete';
+                document.getElementById('downloadedCount').textContent = data.downloaded_count || 0;
+                document.getElementById('missingCount').textContent    = data.missing_count || 0;
+                document.getElementById('totalCount').textContent      = data.total_count || 0;
+                document.getElementById('downloadBtn').href            = `/api/download/${jobId}`;
+            });
+    </script>
+</body>
+</html>
