@@ -89,8 +89,8 @@ os.makedirs(JOBS_DIR, exist_ok=True)
 # ============================================
 # DEMO CREDENTIALS
 # ============================================
-DEMO_USERNAME = "demo"
-DEMO_PASSWORD = "demo123"
+DEMO_USERNAME = "sifaul"
+DEMO_PASSWORD = "sifaul123"
 DEMO_TOKEN    = "DEMO_TOKEN_UPAY_2026"
 
 # ============================================
