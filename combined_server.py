@@ -902,7 +902,7 @@ if __name__ == "__main__":
     print(f"  Upay Demo System running on port {PORT}")
     print(f"  Automation Dashboard: http://localhost:{PORT}/")
     print(f"  Demo Portal:          http://localhost:{PORT}/portal/")
-    print(f"  Demo Login:           demo / demo123")
+    print(f"  Demo Login:           sifaul / sifaul123")
     print(f"{'='*50}\n")
 
     server.serve_forever()
