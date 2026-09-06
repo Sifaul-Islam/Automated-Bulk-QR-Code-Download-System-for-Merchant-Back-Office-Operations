@@ -96,7 +96,7 @@ DEMO_TOKEN    = "DEMO_TOKEN_UPAY_2026"
 # ============================================
 # LOAD AGENTS
 # ============================================
-AGENTS_FILE = os.path.join(BASE_DIR, "agents_demo.xlsx")
+AGENTS_FILE = os.path.join(BASE_DIR, "agents.xlsx")
 agents_df   = None
 
 def load_agents():
