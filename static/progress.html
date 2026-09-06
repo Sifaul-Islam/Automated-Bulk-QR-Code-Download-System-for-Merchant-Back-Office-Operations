@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing — Upay QR Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="navbar-logo-wrap">
+                <img src="/images/upay_logo.png" alt="Upay" style="height:50px; display:block;">
+            </div>
+            <div class="navbar-title">QR Code Automation Dashboard</div>
+        </div>
+        <div class="navbar-right">Sales & Operations Division</div>
+    </nav>
+
+    <div class="main-content">
+
+        <div class="hero">
+            <div class="hero-text">
+                <h1 id="jobTitle">Processing...</h1>
+                <p id="jobSubtitle">Please wait — do not close this window</p>
+            </div>
+            <div class="hero-badge" id="statusBadge">Running</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Progress</div>
+            <div class="card-subtitle" id="progressLabel">Starting automation...</div>
+
+            <div class="progress-container">
+                <div class="progress-fill" id="progressBar">
+                    <span id="progressPct">0%</span>
+                </div>
+            </div>
+            <div class="progress-label">
+                <span>0%</span>
+                <span>100%</span>
+            </div>
+
+            <div class="stats-row" id="statsRow" style="display:none;">
+                <div class="stat-box total">
+                    <div class="stat-number" id="totalAgents">—</div>
+                    <div class="stat-label">Total Agents</div>
+                </div>
+                <div class="stat-box downloaded">
+                    <div class="stat-number" id="batchesDone">—</div>
+                    <div class="stat-label">Batches Done</div>
+                </div>
+                <div class="stat-box missing">
+                    <div class="stat-number" id="batchesFailed">—</div>
+                    <div class="stat-label">Batches Failed</div>
+                </div>
+            </div>
+
+            <div class="log-box" id="logBox">
+                <span class="log-info">Connecting to Upay portal...</span>
+            </div>
+
+            <p style="font-size:12px; color:#fc0404; text-align:center; margin-top:15px; font-weight:bold;">
+                <svg class="inline-icon warning-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 9v4m0 3h.01"/></svg>
+                Do not close or refresh this page while automation is running
+            </p>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        একটি UCB প্রতিষ্ঠান &nbsp;|&nbsp; 16268 &nbsp;|&nbsp; www.upaybd.com
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId     = urlParams.get('job_id');
+
+        if (!jobId) {
+            window.location.href = '/';
+        }
+
+        let lastLogCount = 0;
+        let pollInterval  = null;
+
+        function updateProgress(data) {
+            const progress = Math.max(0, Math.min(100, data.progress || 0));
+
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressPct').textContent = progress + '%';
+
+            if (data.current_type && data.total_batches_in_type > 0) {
+                document.getElementById('progressLabel').textContent =
+                    `${data.current_type} — Batch ${data.current_batch}/${data.total_batches_in_type} (${progress}% overall)`;
+            } else {
+                document.getElementById('progressLabel').textContent =
+                    progress < 100 ? `${progress}% complete` : 'Finalizing...';
+            }
+
+            const logBox  = document.getElementById('logBox');
+            const newLogs = data.logs.slice(lastLogCount);
+
+            newLogs.forEach(entry => {
+                const line = document.createElement('div');
+                const msg  = entry.message || '';
+
+                if (msg.includes('[OK]') || msg.includes('successful') || msg.includes('complete') || msg.includes('Saved')) {
+                    line.className = 'log-success';
+                } else if (msg.includes('[WARNING]') || msg.includes('WARNING') || msg.includes('missing') || msg.includes('Generating')) {
+                    line.className = 'log-warning';
+                } else if (msg.includes('[FAILED]') || msg.includes('ERROR') || msg.includes('failed')) {
+                    line.className = 'log-error';
+                } else if (msg.includes('Processing') || msg.includes('Reading') || msg.includes('Logging')) {
+                    line.className = 'log-info';
+                }
+
+                line.textContent = '> ' + msg;
+                logBox.appendChild(line);
+            });
+
+            lastLogCount = data.logs.length;
+            logBox.scrollTop = logBox.scrollHeight;
+
+            document.getElementById('statsRow').style.display = 'grid';
+            document.getElementById('totalAgents').textContent   = data.total_count || '—';
+            document.getElementById('batchesDone').textContent   = data.batches_done || 0;
+            document.getElementById('batchesFailed').textContent = data.batches_failed || 0;
+
+            if (data.status === 'done') {
+                clearInterval(pollInterval);
+                document.getElementById('statusBadge').textContent = 'Complete';
+                document.getElementById('statusBadge').style.background = '#28a745';
+                document.getElementById('statusBadge').style.color = 'white';
+                document.getElementById('jobSubtitle').textContent = 'Automation complete! Redirecting...';
+                setTimeout(() => {
+                    window.location.href = `/results.html?job_id=${jobId}`;
+                }, 2000);
+            }
+
+            if (data.status === 'failed') {
+                clearInterval(pollInterval);
+                document.getElementById('statusBadge').textContent = 'Failed';
+                document.getElementById('statusBadge').style.background = '#dc3545';
+                document.getElementById('statusBadge').style.color = 'white';
+                document.getElementById('jobSubtitle').textContent = 'Something went wrong — check logs below';
+                document.getElementById('progressBar').style.background = '#dc3545';
+            }
+        }
+
+        function poll() {
+            fetch(`/api/status/${jobId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.excel_name) {
+                        document.getElementById('jobTitle').textContent = data.excel_name;
+                    }
+                    updateProgress(data);
+                })
+                .catch(err => console.error('Poll error:', err));
+        }
+
+        poll();
+        pollInterval = setInterval(poll, 2000);
+    </script>
+</body>
+</html>

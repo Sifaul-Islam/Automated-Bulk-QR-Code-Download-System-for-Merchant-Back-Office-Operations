@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upay QR Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="navbar-logo-wrap">
+                <img src="/images/upay_logo.png" alt="Upay" style="height:50px; display:block;">
+            </div>
+            <div class="navbar-title">QR Code Automation Dashboard</div>
+        </div>
+        <div class="navbar-right">Sales & Operations Division</div>
+    </nav>
+
+    <div class="main-content">
+
+        <div class="hero">
+            <div class="hero-text">
+                <h1>QR Code Automation</h1>
+                <p>Upload your Excel file and start downloading QR codes automatically</p>
+            </div>
+            <div class="hero-badge">Upay Merchant Back Office</div>
+        </div>
+
+        <div class="two-col">
+
+            <div class="card">
+                <div class="card-title">Start New Job</div>
+                <div class="card-subtitle">Enter your portal credentials and upload Excel file</div>
+
+                <div class="alert alert-danger" id="errorAlert"></div>
+
+                <div class="form-group">
+                    <label>Portal Username</label>
+                    <input type="text" id="username" placeholder="Enter your username">
+                </div>
+
+                <div class="form-group">
+                    <label>Portal Password</label>
+                    <div style="position:relative;">
+                        <input type="password" id="password" placeholder="Enter your password" style="padding-right:45px;">
+                        <button onclick="togglePassword()" type="button" id="eyeBtn" style="
+                                position:absolute;
+                                right:12px;
+                                top:50%;
+                                transform:translateY(-50%);
+                                background:none;
+                                border:none;
+                                cursor:pointer;
+                                padding:0;
+                                color:#aaa;
+                                display:flex;
+                                align-items:center;
+                            ">
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="rememberMe" style="width:auto;">
+                    <label style="margin:0; cursor:pointer;" onclick="document.getElementById('rememberMe').click()">
+                        Remember my credentials on this device
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>Excel File</label>
+                    <div class="file-upload" id="fileUpload">
+                        <div class="file-upload-text">
+                            Drag & drop your file here or <span onclick="document.getElementById('fileInput').click()">browse</span>
+                        </div>
+                        <div class="file-name" id="fileName"></div>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="startBtn" onclick="startJob()">
+                    <svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>
+                    Start Automation
+                </button>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="card-title">Excel Format</div>
+                    <div class="card-subtitle">Excel file must have these columns</div>
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Parent/Child</th>
+                                <th>Wallet No.</th>
+                                <th>DBA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Parent</td>
+                                <td>1234567890</td>
+                                <td>XYZ Ltd</td>
+                            </tr>
+                            <tr>
+                                <td>Child</td>
+                                <td>1234567890</td>
+                                <td>XYZ Ltd</td>
+                            </tr>
+                            <tr>
+                                <td>PRA</td>
+                                <td>1234567890</td>
+                                <td>XYZ Ltd</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">How it works</div>
+                    <ol class="how-it-works">
+                        <li>Enter your portal credentials</li>
+                        <li>Upload an Excel file with agent data</li>
+                        <li>Click Start — automation begins</li>
+                        <li>Watch live progress on the next page</li>
+                        <li>Download the ZIP with all QR codes and the report</li>
+                    </ol>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card">
+            <div class="card-title">Job History</div>
+            <div class="card-subtitle">Previous automation runs on this device</div>
+            <div id="historyContainer">
+            
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        একটি UCB প্রতিষ্ঠান &nbsp;|&nbsp; 16268 &nbsp;|&nbsp; www.upaybd.com
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        const fileUpload = document.getElementById('fileUpload');
+        const fileInput  = document.getElementById('fileInput');
+        const fileName   = document.getElementById('fileName');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files[0]) {
+                fileName.textContent = this.files[0].name;
+                fileName.style.display = 'block';
+                fileUpload.style.borderColor = '#1B3A6B';
+            }
+        });
+
+        fileUpload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        fileUpload.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+        });
+
+        fileUpload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+                fileInput.files = e.dataTransfer.files;
+                fileName.textContent = file.name;
+                fileName.style.display = 'block';
+                this.style.borderColor = '#1B3A6B';
+            }
+        });
+
+        loadHistory();
+    </script>
+</body>
+</html>
