@@ -230,8 +230,8 @@ def generate_qr_pdf(wallet_numbers, missing_wallets=None, merchant_names=None):
             except:
                 logo_reader  = ImageReader(logo_path)
 
-            logo_w = 5 * cm
-            logo_h = 2.5 * cm
+            logo_w = 7 * cm
+            logo_h = 4.5 * cm
             logo_x = center_x - logo_w / 2
             logo_y = top_y - 5.5 * cm
             c.drawImage(
