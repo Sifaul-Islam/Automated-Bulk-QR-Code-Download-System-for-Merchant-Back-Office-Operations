@@ -703,7 +703,17 @@ class CombinedHandler(BaseHTTPRequestHandler):
             self.serve_file(os.path.join(PORTAL_DIR, 'portal.js'), 'application/javascript')
 
         # ===== AUTOMATION DASHBOARD =====
-        elif path == '/' or path == '/index.html':
+        elif path == '/':
+            # Redirect root to demo portal
+            self.send_response(302)
+            self.send_header('Location', '/portal/')
+            self.end_headers()
+
+        elif path == '/dashboard' or path == '/dashboard/':
+            # Automation dashboard accessible at /dashboard
+            self.serve_file(os.path.join(STATIC_DIR, 'index.html'), 'text/html')
+
+        elif path == '/index.html':
             self.serve_file(os.path.join(STATIC_DIR, 'index.html'), 'text/html')
 
         elif path == '/progress.html':
